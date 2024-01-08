@@ -1,6 +1,6 @@
 # Prueba Tecnica NestJS
 
-https://test-backups-memgraph.s3.amazonaws.com/Mi+archivos+json.eml
+https://test-backups-memgraph.s3.amazonaws.com/ses-sns-event.json
 
 Se desarrollaron los dos retos: A continuacion se mostraran los pasos para el funcionamiento del ambos retos
 
