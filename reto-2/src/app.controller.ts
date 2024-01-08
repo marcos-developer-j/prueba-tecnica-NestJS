@@ -12,7 +12,20 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
-
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  error_response_DTO,
+  success_response_DTO,
+} from './models/responses.dto';
+import { fileUploadDTO } from './models/attachmentDto.dto';
+@ApiTags('Email Parser')
 @Controller()
 export class AppController {
   constructor(
@@ -20,6 +33,31 @@ export class AppController {
     private httpService: HttpService,
   ) {}
   @Post('upload')
+  @ApiOperation({
+    summary: 'Resumen de la operación',
+    description: 'Descripción detallada de la operación.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Descripción exitosa',
+    type: success_response_DTO,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Error del servidor',
+    type: error_response_DTO,
+  })
+  @ApiQuery({
+    name: 'url',
+    required: false,
+    description: 'URL or PATH of your email file',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Descripción del cuerpo de la solicitud',
+    type: fileUploadDTO,
+    required: false,
+  }) // Ajusta FileUploadDto según tu caso
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: (req, file, callback) => {
