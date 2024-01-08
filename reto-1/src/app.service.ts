@@ -4,10 +4,22 @@ import { response_body_DTO } from './dtos/response_body.dto';
 
 @Injectable()
 export class AppService {
+  /**
+   * The function "mapping" takes in a "RecordsDto" object and returns an array of "response_body_DTO"
+   * objects.
+   * @param {RecordsDto} data - The parameter "data" is of type "RecordsDto".
+   * @returns An array of response_body_DTO objects.
+   */
   mapping(data: RecordsDto): response_body_DTO[] {
     return this.fillMapedObject(data);
   }
 
+  /**
+   * The function takes an original object and maps its "Records" property to create a new array of
+   * response_body_DTO objects with specific properties extracted from the original object.
+   * @param {RecordsDto} original - The `original` parameter is of type `RecordsDto`.
+   * @returns an array of response_body_DTO objects.
+   */
   fillMapedObject(original: RecordsDto): response_body_DTO[] {
     const out: response_body_DTO[] = [];
     original['Records'].map((record) => {
@@ -38,9 +50,5 @@ export class AppService {
     });
 
     return out;
-  }
-
-  convertToJson(file: Express.Multer.File): RecordsDto {
-    return JSON.parse(file.buffer.toString());
   }
 }

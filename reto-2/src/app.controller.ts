@@ -2,13 +2,14 @@ import {
   BadRequestException,
   Controller,
   Post,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as mailparser from 'mailparser';
+
 import { Response } from 'express';
 import { HttpService } from '@nestjs/axios';
 
@@ -33,25 +34,37 @@ export class AppController {
       },
     }),
   )
-  async mapping(
-    @UploadedFile() file: Express.Multer.File,
+  async resolveEmail(
     @Res() res: Response,
+    @UploadedFile() file?: Express.Multer.File,
+    @Query('url') url?: string,
   ) {
     try {
-      const contenidoEml = file.buffer.toString('utf-8');
-      let out = null;
-      mailparser.simpleParser(contenidoEml, async (err, email) => {
-        if (err) {
-          console.error('Error al analizar el email:', err);
-          return;
-        }
-        const body = email.text;
-        const attachments = email.attachments;
-        out = await this.appService.finalUrlsJson(body, attachments);
-      });
-      res.status(200).send({ error: false, data: out });
+      if ((file && url) || (!file && !url)) {
+        res
+          .status(500)
+          .send({
+            error: true,
+            messaje: `Error: Two options: attach email file or use ?url=your-url-or-path.${
+              file && url
+                ? 'Both at the same time invalid'
+                : 'You must enter one'
+            }   `,
+          })
+          .end();
+        return;
+      }
+      const emailContent = url
+        ? await this.appService.getEmailfromUrl(url)
+        : file.buffer.toString('utf-8');
+      const response = await this.appService.resolveEmailJsons(emailContent);
+      res
+        .status(200)
+        .send({ error: false, from: url ? url : 'file', data: response });
+      return;
     } catch (error) {
-      res.status(500).send({ error: true, messaje: 'Error inesperado' });
+      res.status(500).send({ error: true, messaje: error.message || error });
+      return;
     }
   }
 }
